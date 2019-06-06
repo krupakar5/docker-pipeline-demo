@@ -1,0 +1,16 @@
+node {
+    stage 'build-pipeline_project'
+    //this triggers the Jenkins job that builds the container
+    //build 'pipeline-svc'
+ 
+    stage 'Publish containers'
+    shouldPublish = input message: 'Publish Containers?', parameters: [[$class: 'ChoiceParameterDefinition', choices: 'yes\nno', description: '', name: 'Deploy']]
+    if(shouldPublish == "yes") {
+     echo "Publishing docker containers"
+     sh "\$(aws ecr get-login)"
+ 
+     sh "docker build -t eks/test-repo ."
+     sh "docker tag eks/test-repo:latest 413252734349.dkr.ecr.ap-south-1.amazonaws.com/eks/test-repo:latest"
+     sh "docker push 413252734349.dkr.ecr.ap-south-1.amazonaws.com/eks/test-repo:latest"
+    }
+}
